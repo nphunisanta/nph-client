@@ -16,7 +16,7 @@ from .thresholds import (
     get_ppdc_sea_level_thresholds,
 )
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 __all__ = [
     "__version__",
