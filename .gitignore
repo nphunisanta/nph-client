@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Build & Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+ENV/
+
+# Segredos, tokens e scripts locais
+.env
+.env.*
+.pypirc
+*.bat
+*.key
+*.pem
+
+# Jupyter & Testes
+.ipynb_checkpoints/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+
+# Saídas geradas localmente
+*.html
+*.png
+*.pdf
+*.csv
+!docs/**/*.png
+
+# IDEs & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

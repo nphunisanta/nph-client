@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nph-client"
+version = "1.0.0"
+description = "Cliente Python oficial para acesso e visualização de dados hidro-meteoceanográficos da Sala de Situação da Baixada Santista (NPH-UNISANTA)."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [
+    { name = "NPH-UNISANTA", email = "nph@unisanta.br" },
+]
+keywords = [
+    "nph",
+    "nph-client",
+    "unisanta",
+    "oceanografia",
+    "meteorologia",
+    "hidrodinamica",
+    "baixada-santista",
+    "dados-ambientais",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Hydrology",
+]
+dependencies = [
+    "matplotlib>=3.10.0",
+    "numpy>=2.3.0",
+    "pandas>=2.3.0",
+    "requests>=2.32.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.6.0",
+]
+
+[project.urls]
+Homepage = "https://nph.unisanta.br"
+Documentation = "https://nph.unisanta.br/ssbs"
+Repository = "https://github.com/nphunisanta/nph-client"
+Issues = "https://github.com/nphunisanta/nph-client/issues"
+Zenodo = "https://doi.org/10.5281/zenodo.24142964"
+
+[tool.setuptools.packages.find]
+where = ["src"]
