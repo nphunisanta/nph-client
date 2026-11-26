@@ -4,7 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/nph-client.svg)](https://pypi.org/project/nph-client/)
 [![Software License: MIT](https://img.shields.io/badge/Code%20License-MIT-blue.svg)](LICENSE)
 [![Data License: CC BY-NC 4.0](https://img.shields.io/badge/Data%20License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24142964.svg)](https://doi.org/10.5281/zenodo.24142964)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24142963.svg)](https://doi.org/10.5281/zenodo.24142963)
 
 Biblioteca Python oficial da **Sala de Situação de Recursos Hídricos da Baixada Santista (SS-BS)**, desenvolvida pelo **Núcleo de Pesquisas Hidrodinâmicas da Universidade Santa Cecília (NPH-UNISANTA)** para aquisição e visualização de dados hidro-meteoceanográficos (chuva, nível do mar/rio, ondas, correntes e vento) no litoral de São Paulo.
 
@@ -126,10 +126,10 @@ plt.show()
 Qualquer publicação científica, TCC, relatório, dashboard ou aplicação que utilize os dados fornecidos pela API deve citar a plataforma, o DOI oficial e as fontes originais dos dados:
 
 **ABNT**
-> NUSCH, G. S.; RUIZ, M. S.; FERREIRA, R. S.; RIBEIRO, R. B.; GOMES, K. L.; LIMA, M. M. S.; BEZERRA, V. L. V.; SAMPAIO, A. F. P. **NPH-Client: API e pacote Python para dados hidro-meteoceanográficos da Baixada Santista**. Versão 1.0.1. Santos: Núcleo de Pesquisas Hidrodinâmicas da Universidade Santa Cecília (NPH-UNISANTA), 2026. DOI: 10.5281/zenodo.24142964. Disponível em: https://nph.unisanta.br/ssbs/pt.
+> NUSCH, G. S.; RUIZ, M. S.; FERREIRA, R. S.; RIBEIRO, R. B.; GOMES, K. L.; LIMA, M. M. S.; BEZERRA, V. L. V.; SAMPAIO, A. F. P. **NPH-Client: API e pacote Python para dados hidro-meteoceanográficos da Baixada Santista**. Versão 1.0.1. Santos: Núcleo de Pesquisas Hidrodinâmicas da Universidade Santa Cecília (NPH-UNISANTA), 2026. DOI: 10.5281/zenodo.24142963. Disponível em: https://nph.unisanta.br/ssbs/pt.
 
 **APA**
-> Nusch, G. S., Ruiz, M. S., Ferreira, R. S., Ribeiro, R. B., Gomes, K. L., Lima, M. M. S., Bezerra, V. L. V., & Sampaio, A. F. P. (2026). *NPH-Client: API e pacote Python para dados hidro-meteoceanográficos da Baixada Santista* (Versão 1.0.1) [Software]. Núcleo de Pesquisas Hidrodinâmicas da Universidade Santa Cecília (NPH-UNISANTA). https://doi.org/10.5281/zenodo.24142964
+> Nusch, G. S., Ruiz, M. S., Ferreira, R. S., Ribeiro, R. B., Gomes, K. L., Lima, M. M. S., Bezerra, V. L. V., & Sampaio, A. F. P. (2026). *NPH-Client: API e pacote Python para dados hidro-meteoceanográficos da Baixada Santista* (Versão 1.0.1) [Software]. Núcleo de Pesquisas Hidrodinâmicas da Universidade Santa Cecília (NPH-UNISANTA). https://doi.org/10.5281/zenodo.24142963
 
 **BibTeX**
 ```bibtex
@@ -146,8 +146,8 @@ Qualquer publicação científica, TCC, relatório, dashboard ou aplicação que
   year         = 2026,
   publisher    = {Zenodo},
   version      = {1.0.1},
-  doi          = {10.5281/zenodo.24142964},
-  url          = {[https://doi.org/10.5281/zenodo.24142964](https://doi.org/10.5281/zenodo.24142964)}
+  doi          = {10.5281/zenodo.24142963},
+  url          = {[https://doi.org/10.5281/zenodo.24142963](https://doi.org/10.5281/zenodo.24142963)}
 }
 ```
 
