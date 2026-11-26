@@ -8,11 +8,18 @@ from nph_client import NPHAPIError, NPHAuthError, NPHClient
 from nph_client.glossary import resolve_model_id, resolve_param_id
 
 
-def _mock_response(json_data, status_code=200, ok=True, text=""):
+def _mock_response(
+    json_data=None,
+    status_code=200,
+    ok=True,
+    text="",
+    content_type="application/json",
+):
     resp = MagicMock()
     resp.status_code = status_code
     resp.ok = ok
     resp.text = text
+    resp.headers = {"Content-Type": content_type}
     resp.json.return_value = json_data
     return resp
 
@@ -30,14 +37,17 @@ def test_env_api_key_is_loaded(monkeypatch):
     assert client.api_key == "env-secret-key"
 
 
-def test_health_does_not_require_auth(monkeypatch):
+def test_health_handles_plain_text_ok(monkeypatch):
     monkeypatch.delenv("NPH_API_KEY", raising=False)
     client = NPHClient()
 
     with patch.object(
         client._session,
         "get",
-        return_value=_mock_response({"status": "ok"}),
+        return_value=_mock_response(
+            text="ok",
+            content_type="text/html; charset=utf-8",
+        ),
     ) as mock_get:
         result = client.health()
 
@@ -83,6 +93,48 @@ def test_get_stations_returns_indexed_dataframe():
     assert list(df.index) == ["351", "411"]
     assert "station_name" in df.columns
 
+def test_measurements_and_forecasts_share_tz_naive_index():
+    client = NPHClient("test-key")
+    meas_payload = [
+        {
+            "station_id": "310",
+            "station_name": "Cota-200",
+            "datetime": "2026-01-01 03:00:00",
+            "primary_value": 4.2,
+        }
+    ]
+    fcst_payload = [
+        {
+            "station_id": "310",
+            "station_name": "Cota-200",
+            "datetime": "2026-01-01T03:00:00.000Z",
+            "value": 3.8,
+        }
+    ]
+
+    with patch.object(
+        client._session,
+        "get",
+        side_effect=[_mock_response(meas_payload), _mock_response(fcst_payload)],
+    ):
+        df_m = client.get_measurements(
+            stations=[310],
+            start_date="2026-01-01",
+            end_date="2026-01-02",
+            time_offset=timedelta(hours=-3),
+        )
+        df_f = client.get_forecasts(
+            stations=[310],
+            model_id="WRF 3km",
+            param_id="Precipitação",
+            start_date="2026-01-01",
+            end_date="2026-01-02",
+            time_offset=timedelta(hours=-3),
+        )
+
+    assert df_m.index.tz is None
+    assert df_f.index.tz is None
+    assert df_m.index[0] == df_f.index[0] == pd.Timestamp("2026-01-01 00:00:00")
 
 def test_get_measurements_primary_and_time_offset():
     client = NPHClient("test-key")

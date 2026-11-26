@@ -57,12 +57,12 @@ class NPHClient:
             )
         return headers
 
-    def _request_json(
+    def _request_raw(
         self,
         endpoint: str,
         params: dict[str, Any] | None = None,
         require_auth: bool = True,
-    ) -> Any:
+    ) -> requests.Response:
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         headers = self._get_headers(require_auth=require_auth)
 
@@ -89,7 +89,27 @@ class NPHClient:
                 status_code=response.status_code,
             )
 
-        return response.json()
+        return response
+
+    def _request_json(
+        self,
+        endpoint: str,
+        params: dict[str, Any] | None = None,
+        require_auth: bool = True,
+    ) -> Any:
+        response = self._request_raw(
+            endpoint=endpoint,
+            params=params,
+            require_auth=require_auth,
+        )
+        try:
+            return response.json()
+        except ValueError as exc:
+            raise NPHAPIError(
+                f"Resposta inesperada (não-JSON) em GET {endpoint}: "
+                f"{response.text[:200]}",
+                status_code=response.status_code,
+            ) from exc
 
     @staticmethod
     def _normalize_stations(stations: StationInput) -> list[str]:
@@ -111,18 +131,29 @@ class NPHClient:
             return ts.strftime("%Y-%m-%d")
         return ts.strftime("%Y-%m-%d %H:%M:%S")
 
+    @staticmethod
+    def _normalize_datetime(
+        series: pd.Series,
+        time_offset: timedelta | None = None,
+    ) -> pd.Series:
+        """Padroniza timestamps para DatetimeIndex tz-naive antes de aplicar o offset."""
+        dt = pd.to_datetime(series)
+        if isinstance(dt.dtype, pd.DatetimeTZDtype):
+            dt = dt.dt.tz_convert("UTC").dt.tz_localize(None)
+        if time_offset is not None:
+            dt = dt + time_offset
+        return dt
+
     def _fetch_chunked(
         self,
         endpoint: str,
         start_dt: pd.Timestamp,
         end_dt: pd.Timestamp,
         base_params: dict[str, Any],
-        chunk_days: int = 365,
+        chunk_days: int = 90,
     ) -> pd.DataFrame:
         if start_dt > end_dt:
             raise ValueError("`start_date` não pode ser posterior a `end_date`.")
-
-        frames: list[pd.DataFrame] = []
 
         if start_dt == end_dt:
             params = {
@@ -133,7 +164,9 @@ class NPHClient:
             data = self._request_json(endpoint, params=params)
             return pd.DataFrame(data) if data else pd.DataFrame()
 
+        frames: list[pd.DataFrame] = []
         current_start = start_dt
+
         while current_start < end_dt:
             chunk_end = min(current_start + timedelta(days=chunk_days), end_dt)
             params = {
@@ -159,7 +192,11 @@ class NPHClient:
 
     def health(self) -> dict[str, Any]:
         """Verifica se a API está online (endpoint público `/health`)."""
-        return self._request_json("health", require_auth=False)
+        response = self._request_raw("health", require_auth=False)
+        content_type = response.headers.get("Content-Type", "")
+        if "application/json" in content_type.lower():
+            return response.json()
+        return {"status": response.text.strip()}
 
     def get_stations(self) -> pd.DataFrame:
         """Retorna um DataFrame com todas as estações cadastradas na base."""
@@ -173,7 +210,7 @@ class NPHClient:
         return df
 
     def get_sources(self) -> dict[str, Any]:
-        """Retorna as fontes de dados disponíveis (`models` e `real_data`)."""
+        """Retorna o catálogo centralizador de fontes (`models` e `real_data`)."""
         return self._request_json("sources")
 
     def get_params(self) -> pd.DataFrame:
@@ -196,23 +233,22 @@ class NPHClient:
         time_offset: timedelta | None = None,
     ) -> pd.DataFrame:
         """
-        Consulta medições oficiais verificadas pela equipe do NPH.
+        Consulta medições observadas da base do NPH.
 
         Parâmetros
         ----------
         stations : list[str | int] | str | int
-            ID de uma estação ou lista de IDs.
+            ID de uma estação ou lista de IDs (ex.: `310` para Cota-200, Cubatão).
         start_date : str | date | datetime
             Data de início da série temporal.
         end_date : str | date | datetime
             Data final da série temporal.
         return_value : int, default 0
-            Variável de retorno:
             - 0: `primary_value`
             - 1: `secondary_value`
             - 3: `extra_values` (sensores multivariáveis como estações meteorológicas e ADCPs)
         time_offset : timedelta | None, default None
-            Ajuste de fuso horário aplicado ao índice `datetime` (ex: `timedelta(hours=-3)`).
+            Ajuste de fuso horário aplicado ao índice `datetime` (ex.: `timedelta(hours=-3)`).
         """
         station_list = self._normalize_stations(stations)
         if not station_list:
@@ -238,13 +274,10 @@ class NPHClient:
             return pd.DataFrame()
 
         df = pd.concat(frames, ignore_index=True)
-        df["datetime"] = pd.to_datetime(df["datetime"])
-        if time_offset is not None:
-            df["datetime"] = df["datetime"] + time_offset
+        df["datetime"] = self._normalize_datetime(df["datetime"], time_offset)
 
         col_name = "station_name" if "station_name" in df.columns else "station_id"
 
-        # Modo multivariável (extra_values)
         if return_value in (2, 3):
             if "extra_values" not in df.columns:
                 return pd.DataFrame()
@@ -286,16 +319,16 @@ class NPHClient:
         time_offset: timedelta | None = None,
     ) -> pd.DataFrame:
         """
-        Consulta previsões de modelos numéricos verificados pelo NPH.
+        Consulta previsões de modelos numéricos e neurais da base do NPH.
 
         Parâmetros
         ----------
         stations : list[str | int] | str | int
-            ID de uma estação ou lista de IDs.
+            ID de uma estação ou lista de IDs (ex.: `310` para Cota-200, Cubatão).
         model_id : int | str
-            ID ou nome do modelo numérico (consulte o Glossário).
+            ID ou nome do modelo conforme o Glossário (não confundir com o ID de `/sources`).
         param_id : int | str
-            ID ou nome da variável física (consulte o Glossário).
+            ID ou nome da variável física conforme o Glossário.
         start_date : str | date | datetime
             Data de início da consulta.
         end_date : str | date | datetime
@@ -333,9 +366,7 @@ class NPHClient:
             return pd.DataFrame()
 
         df = pd.concat(frames, ignore_index=True)
-        df["datetime"] = pd.to_datetime(df["datetime"])
-        if time_offset is not None:
-            df["datetime"] = df["datetime"] + time_offset
+        df["datetime"] = self._normalize_datetime(df["datetime"], time_offset)
 
         col_name = "station_name" if "station_name" in df.columns else "station_id"
         value_col = "value" if "value" in df.columns else df.columns[-1]

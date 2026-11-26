@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nph-client"
-version = "1.0.0"
+version = "1.0.1"
 description = "Cliente Python oficial para acesso e visualização de dados hidro-meteoceanográficos da Sala de Situação da Baixada Santista (NPH-UNISANTA)."
 readme = "README.md"
 license = { text = "MIT" }
@@ -36,10 +36,10 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Hydrology",
 ]
 dependencies = [
-    "matplotlib>=3.10.0",
-    "numpy>=2.3.0",
-    "pandas>=2.3.0",
-    "requests>=2.32.5",
+    "matplotlib>=3.8.0",
+    "numpy>=1.26.0",
+    "pandas>=2.0.0",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]
@@ -50,7 +50,8 @@ dev = [
 
 [project.urls]
 Homepage = "https://nph.unisanta.br"
-Documentation = "https://nph.unisanta.br/ssbs"
+Documentation = "https://nph.unisanta.br/ssbs/pt"
+Changelog = "https://nph.unisanta.br/ssbs/pt/docs/about/release"
 Repository = "https://github.com/nphunisanta/nph-client"
 Issues = "https://github.com/nphunisanta/nph-client/issues"
 Zenodo = "https://doi.org/10.5281/zenodo.24142964"
